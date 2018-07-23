@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jul 21 12:31:15 2018
+
+@author: tylermeyers
+"""
+
+import pandas as pd
+import numpy as np
+import pyodbc
+import openpyxl
+from datetime import datetime
+
+#-----------------------------------------------------------------------------------------------------
+#This program is used to pull data from SNL by transforming the data into a more useable format
+#User will input start and end dates, company and the indicators for the fields
+#-----------------------------------------------------------------------------------------------------
+
+beg_date = input("Enter the end of month date for first month\n"+
+                     "that you want to pull from SNL:    ")
+
+end_date = input("Enter the end of month date for last month\n"+
+                     "that you want to pull from SNL:    ")
+comp_list = input("Enter the codes of the companies you\n"
+                  "you want to include eg: KEY, MSFT, GOOG:  ")
+
+def comp_converter(comp_list):
+    comp_list = comp_list.split(",")
+    comp_list=[x.upper() for x in comp_list]
+    
+    return comp_list
+
+
+comp_list = comp_converter(comp_list)
+df= pd.DataFrame(comp_list, columns =['Company'])
+df['Start']=beg_date
+df['End']=end_date
+print(df)
+df2 = pd.concat([pd.DataFrame({"dt": pd.date_range(row.Start, row.End, freq='Q'), 
+                'Company': row.Company}, columns=['dt','Company'])
+    for i, row in df.iterrows()], ignore_index=True)
+
+print(df2)
+print(beg_date)
+print(end_date)
+print(comp_list)
+print(dates.tolist())
+
+
