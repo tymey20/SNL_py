@@ -24,6 +24,8 @@ end_date = input("Enter the end of month date for last month\n"+
                      "that you want to pull from SNL:    ")
 comp_list = input("Enter the codes of the companies you\n"
                   "you want to include eg: KEY, MSFT, GOOG:  ")
+field_list = input("Enter the Field names from the master list\n"
+                   "eg: GROSS_LOANS_&_LEASES   ")
 
 def comp_converter(comp_list):
     comp_list = comp_list.split(",")
@@ -31,6 +33,7 @@ def comp_converter(comp_list):
     
     return comp_list
 
+field_list = comp_converter(field_list)
 
 comp_list = comp_converter(comp_list)
 df= pd.DataFrame(comp_list, columns =['Company'])
@@ -41,10 +44,25 @@ df2 = pd.concat([pd.DataFrame({"dt": pd.date_range(row.Start, row.End, freq='Q')
                 'Company': row.Company}, columns=['dt','Company'])
     for i, row in df.iterrows()], ignore_index=True)
 
+df2['Qtr'] = pd.PeriodIndex(pd.to_datetime(df2.dt), freq='Q')
+
+for fld in field_list:
+    df2[fld] = ""
+    
+
+wbName=destfol+"\\SNL_PULL.xlsx"
+writer = pd.ExcelWriter(wbName)
+dffinal.to_excel(writer, "Detail", index=False)
+writer.save()
+
+wb.save(wbName)
+
+
+df2.drop(['fld'],axis = 1)
 print(df2)
 print(beg_date)
 print(end_date)
 print(comp_list)
 print(dates.tolist())
-
+print(field_list)
 
