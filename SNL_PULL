@@ -26,6 +26,8 @@ comp_list = input("Enter the codes of the companies you\n"
                   "you want to include eg: KEY, MSFT, GOOG:  ")
 field_list = input("Enter the Field names from the master list\n"
                    "eg: GROSS_LOANS_&_LEASES   ")
+destfol = input("Enter the filepath where you would like the \n"
+                "Report saved:     ")
 
 def comp_converter(comp_list):
     comp_list = comp_list.split(",")
@@ -49,13 +51,34 @@ df2['Qtr'] = pd.PeriodIndex(pd.to_datetime(df2.dt), freq='Q')
 for fld in field_list:
     df2[fld] = ""
     
-
-wbName=destfol+"\\SNL_PULL.xlsx"
+wbName=destfol+"/SNL_PULL.xlsx"
 writer = pd.ExcelWriter(wbName)
-dffinal.to_excel(writer, "Detail", index=False)
+df2.to_excel(writer, "Detail", index=False)
 writer.save()
 
+wb = openpyxl.load_workbook(wbName)
+for sheet in wb.worksheets:
+    formatter(sheet)
 wb.save(wbName)
+print(destfol)
+#-----------------------------------------------------------------------------------------------------
+#Iterate over columns 
+#-----------------------------------------------------------------------------------------------------
+col_indices = {n for n, cell in enumerate(wbName.rows[0]) if cell.value in field_list}
+print(col_indices)
+    for row in sheet.rows[1:]:
+    for index, cell in enumerate(row):
+         if index in col_indices:
+             if cell.value.upper() == 'OldValue1':
+                  cell.value = 1
+                  print(cell.value)
+             elif cell.value.upper() == 'OldValue2':
+                 cell.value = 2
+                 print(cell.value)
+
+
+
+
 
 
 df2.drop(['fld'],axis = 1)
